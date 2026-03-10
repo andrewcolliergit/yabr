@@ -1,0 +1,18 @@
+[
+  {
+    "file": "src/main.cpp",
+    "arguments": [
+      "g++",
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Iinclude",
+      "-c",
+      "src/main.cpp",
+      "-o",
+      "obj/main.o"
+    ],
+    "directory": "/Users/drew/.local/src/bulkrename",
+    "output": "obj/main.o"
+  }
+]
