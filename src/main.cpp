@@ -240,7 +240,7 @@ void configure_arg_parser(args::Parser& args) {
    // Preliminary configurations
    args.auto_pipe(true);
    args.program = "yabr";
-   args.version = "v0.1.0";
+   args.version = "v1.0.0";
    args.usage = "usage: " + args.program + " [option] [file ...]";
    // args.description =
    //    "A CLI bulk rename utility that uses your editor to rename files.";
