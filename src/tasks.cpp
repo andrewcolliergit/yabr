@@ -1,5 +1,6 @@
 #include "tasks.h"
 
+#include <cmath>
 #include <exception>
 #include <functional>
 #include <stdexcept>
