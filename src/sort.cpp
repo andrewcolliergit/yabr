@@ -8,6 +8,8 @@
 #define GETPID getpid
 #endif
 
+#include <algorithm>
+#include <queue>
 #include <string>
 #include <unordered_map>
 
