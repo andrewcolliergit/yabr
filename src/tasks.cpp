@@ -262,6 +262,8 @@ void detect_problems(vector<Task>& tasks, ValidationInfo& vi) {
    for (const Task& t : tasks) vi.sources_set.insert(t.source.string());
 
    for (Task& task : tasks) {
+      // Set the default conflict to none
+      task.conflict = Conflict::none;
       // Deletion:
       if (task.target.empty()) {
          // Directories
@@ -336,6 +338,10 @@ void handle_issue(vector<Task>& tasks,
 
    if (opt_override) {
       recurring_action = Action::force;
+   }
+
+   if (recurring_action != Action::none) {
+      action = recurring_action;
    }
    else if (recurring_action == Action::none) {
       switch (prompt_fn()) {
@@ -486,12 +492,14 @@ vector<Task> create_tasks(vector<string>& target_list,
       // Delete
       if (target->requests_deletion) {
          tasks.emplace_back(Task{.source = sources[i].path(),
+                                 .operation = Operation::remove,
                                  .is_directory = sources[i].is_directory});
       }
       // Rename
       else {
          tasks.emplace_back(Task{.source = sources[i].path(),
                                  .target = target->path(),
+                                 .operation = Operation::rename,
                                  .is_directory = sources[i].is_directory,
                                  .needs_parent = target->needs_parent});
       }
@@ -516,7 +524,6 @@ void validate_tasks(vector<Task>& tasks) {
           std::remove_if(tasks.begin(), tasks.end(),
                          [](const Task& t) { return t.source == t.target; }),
           tasks.end());
-      return;
    }
 
    // --- Phase 1: Detect and count conflicts ---
