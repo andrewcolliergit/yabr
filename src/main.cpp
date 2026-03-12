@@ -166,9 +166,11 @@ int main(int argc, char* argv[]) {
          case yabr::ui::prompt::PreviewAction::reset:
             tf.clear();
             tf.write(source_list);
+            [[fallthrough]];
          case yabr::ui::prompt::PreviewAction::modify:
             tf.edit();
             target_list = tf.read();
+            [[fallthrough]];
          default:
             break;
       }

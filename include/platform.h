@@ -11,6 +11,7 @@
 
 #define ISATTY _isatty
 #define STDIN_FD 0
+#define STDOUT_FD 1
 #define GET_CHAR _getch
 #include <process.h>
 #define GETPID _getpid

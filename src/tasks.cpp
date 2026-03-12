@@ -61,19 +61,20 @@ void increment_targets(std::vector<Task>& tasks) {
    unordered_set<string> set_of_sources;
 
    for (const Task& task : tasks) {
-      set_of_sources.insert(task.source);  // Available sources
-      if (task.target.empty()) continue;   // Deletion
+      set_of_sources.insert(task.source.string());  // Available sources
+      if (task.target.empty()) continue;            // Deletion
       countdown_map[task.target.string()]++;
    }
 
    group_max_map = countdown_map;
    size_t group_size = 0;
-   int count = 0;
+   size_t count = 0;
    string original_key = "";
 
    auto available = [&](const fs::path& t, int n) -> bool {
       fs::path potential = number(t, n, group_size);
-      return set_of_sources.contains(potential) || !fs::exists(potential);
+      return set_of_sources.contains(potential.string()) ||
+             !fs::exists(potential);
    };
 
    // Increment each filename according to the config
