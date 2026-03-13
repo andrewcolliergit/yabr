@@ -1,0 +1,261 @@
+.TH YABR 1 "2025" "yabr 1.0.0" "User Commands"
+.SH NAME
+yabr \- yet another bulk renamer
+.SH SYNOPSIS
+.B yabr
+[\fIOPTIONS\fR] [\fIfile\fR ...]
+.SH DESCRIPTION
+.B yabr
+is a CLI bulk rename utility that uses your text editor to rename files.
+Running
+.B yabr
+on a directory opens your
+.B $EDITOR
+with a list of filenames. Edit the names, save, and quit.
+.B yabr
+renames everything accordingly.
+.PP
+.B yabr
+has syntax similar to
+.BR ls (1).
+Running it on a single directory uses the files in that directory.
+Passing multiple directories returns all their contents.
+Paths are displayed relative to the least common ancestor of all sources
+unless
+.B \-l
+is passed to display absolute paths.
+.PP
+.B yabr
+also accepts piped input, making it compatible with
+.BR find (1),
+.BR grep (1),
+.BR sort (1),
+and other standard tools.
+.SH USAGE
+.SS Renaming and deleting
+Files passed to
+.B yabr
+open in your editor. To rename a file, change its name. To delete a file,
+blank out its line.
+.B The total number of lines must not change.
+.B yabr
+will abort if any lines have been added or removed.
+.PP
+.B yabr
+works as follows:
+.IP 1. 4
+Validates all sources. Sources that don't exist or lack permissions are omitted
+(use
+.B \-v
+to see warnings, or
+.B \-\-strict
+to abort on any warning).
+.IP 2. 4
+Evaluates all changes made by the user and validates target paths and permissions.
+.IP 3. 4
+Previews all proposed actions. The user can then modify changes, reset to
+original names, abort, or execute.
+.SS Collisions
+If a rename target already exists or will exist as the result of another rename,
+.B yabr
+prompts the user to resolve it:
+.IP \(bu 4
+.B Overwrite:
+Overwrite the target. Suppress prompts with
+.BR \-f .
+.IP \(bu 4
+.B Skip:
+Skip the rename. Suppress prompts with
+.BR \-s .
+.IP \(bu 4
+.B Increment:
+Append an increment suffix to the target name. Suppress prompts with
+.B \-i
+or
+.BR \-I .
+.SS Path name resolution
+If a rename target's parent directories do not exist,
+.B yabr
+will prompt the user to create them. Suppress this prompt with
+.BR \-p .
+.SS Deletion
+Blanking a line marks that file for deletion.
+.B yabr
+will prompt before deleting. Suppress with
+.BR \-D .
+Deleting non-empty directories requires both
+.B \-D
+and
+.BR \-f .
+.SS Rename cycles
+Rename cycles (e.g. A\(->B and B\(->A) are handled automatically
+using temporary files.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Print help message and exit.
+.TP
+.B \-\-version
+Print the build version and exit.
+.TP
+.BR \-v " [\fILEVEL\fR], " \-\-verbose "[=\fILEVEL\fR]"
+Enable verbose output. Without LEVEL, defaults to 2.
+0 = silent, 1 = errors only, 2 = warnings, 3 = info.
+.TP
+.B \-\-debug
+Enable debug-level logging. Equivalent to
+.BR \-\-verbose=3 .
+.TP
+.BR \-e ", " \-\-exec
+Execute renames without preview.
+.TP
+.BR \-n ", " \-\-dry
+Dry run. Preview changes without renaming any files. Implies verbosity level 3.
+.TP
+.BR \-l ", " \-\-absolute\-paths
+Display absolute paths.
+.TP
+.BR \-a ", " \-\-show\-hidden
+Include hidden files (dotfiles).
+.TP
+.BR \-d ", " \-\-dirs\-as\-files
+Treat directories as regular files. Has no effect when combined with
+.BR \-R .
+.TP
+.BR \-R ", " \-\-recursive
+Recursively include files.
+.TP
+.BR \-L ", " \-\-follow\-symlinks
+Follow symlinks when traversing directories.
+.TP
+.BR \-f ", " \-\-force
+Force overwriting without prompt. Must be combined with
+.B \-D
+to suppress prompts for non-empty directory deletion. Mutually exclusive with
+.BR \-s .
+.TP
+.BR \-s ", " \-\-skip
+Automatically skip conflicting tasks. Mutually exclusive with
+.BR \-f .
+.TP
+.BR \-D ", " \-\-delete
+Suppress deletion prompt. Non-empty directory deletion still prompts unless
+.B \-f
+is also passed.
+.TP
+.BR \-p ", " \-\-create\-directories
+Automatically create intermediate directories as required. Suppresses prompt.
+.TP
+.B \-\-strict
+Elevate warnings to errors that immediately abort the program.
+.TP
+.BR \-r ", " \-\-reverse
+Reverse the sorting order.
+.TP
+.BR \-V ", " \-\-version\-sort
+Sort sources using version (natural) sort. Useful for numbered files.
+.TP
+.BR \-i ", " \-\-increment
+Automatically increment collisions using the default format: \fBfile (1).ext\fR.
+.TP
+.BR \-I \fIFMT\fR ", " \-\-increment\-format= \fIFMT\fR
+Same as
+.B \-i
+but with a custom format string where
+.B %n
+is replaced by the increment number.
+Prepend a number for minimum digits (e.g.
+.BR %3n ),
+or
+.B #
+for automatic zero-padding based on group size (e.g.
+.BR %#n ).
+.TP
+.BI \-\-input\-file= FILE
+Rename sources using targets read from FILE, skipping the editor.
+.SH INCREMENT FORMAT
+The
+.B \-I
+flag accepts a format string containing
+.BR %n :
+.PP
+.TS
+l l.
+\fBFormat\fR	\fBExample output\fR
+_%n	file_1.ext, file_2.ext
+_%3n	file_001.ext, file_002.ext
+_%#n	auto zero-pads based on group size
+ (%n)	file (1).ext (default for \-i)
+.TE
+.SH EXAMPLES
+Rename files in a directory:
+.PP
+.RS
+.nf
+yabr ~/photos/
+.fi
+.RE
+.PP
+Recursively rename with a dry run first:
+.PP
+.RS
+.nf
+yabr \-Rn ~/project/
+.fi
+.RE
+.PP
+Rename files and auto-increment duplicates:
+.PP
+.RS
+.nf
+yabr \-i *.log
+.fi
+.RE
+.PP
+Custom increment format:
+.PP
+.RS
+.nf
+yabr \-I "_%3n" *.jpg
+yabr \-I "_%#n" *.jpg
+.fi
+.RE
+.PP
+Pipe from find:
+.PP
+.RS
+.nf
+find . \-name "*.jpg" | yabr
+.fi
+.RE
+.PP
+Move files into a new directory structure:
+.PP
+.RS
+.nf
+yabr \-p *.jpg
+.fi
+.RE
+.SH ENVIRONMENT
+.TP
+.B EDITOR
+The editor used to edit filenames. Falls back to
+.B vi
+on Unix and
+.B notepad
+on Windows if unset.
+.SH NOTES
+The number of lines in the editor must match the number of input files.
+Do not add or remove lines.
+.PP
+Hidden files (dotfiles) are excluded by default. Use
+.B \-a
+to include them.
+.SH LICENSE
+MIT
+.SH AUTHORS
+Andrew Collier
+.SH SEE ALSO
+.BR mv (1),
+.BR find (1),
+.BR ls (1)
