@@ -27,7 +27,7 @@ jobs:
 
       - name: Rename binary (Windows)
         if: runner.os == 'Windows'
-        run: mv build/yabr.exe build/Release/yabr-${{ matrix.os }}.exe
+        run: mv build/yabr.exe build/yabr-${{ matrix.os }}.exe
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
