@@ -35,7 +35,7 @@ jobs:
           name: yabr-${{ matrix.os }}
           path: |
             build/yabr-${{ matrix.os }}
-            build/Release/yabr-${{ matrix.os }}.exe
+            build/yabr-${{ matrix.os }}.exe
 
   release:
     needs: build
